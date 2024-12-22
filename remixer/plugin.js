@@ -17,22 +17,27 @@
   };
   var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-  // plugins/hello-world/index.jsx
-  var hello_world_exports = {};
-  __export(hello_world_exports, {
-    onLoad: () => onLoad,
+  // plugins/remixer/index.ts
+  var remixer_exports = {};
+  __export(remixer_exports, {
     onUnload: () => onUnload
   });
   var {
-    util: {
-      log
-    }
+    http: { intercept }
   } = shelter;
-  function onLoad() {
-    log("Hello, World from shelter!");
-  }
+  var unintercept = intercept("post", /\/channels\/\d+\/messages/, async (req, send) => {
+    if (req.body.attachments) {
+      for (let i = 0; i < req.body.attachments.length; i++) {
+        req.body.attachments[i] = {
+          ...req.body.attachments[i],
+          is_remix: true
+        };
+      }
+    }
+    return send(req);
+  });
   function onUnload() {
-    log("Goodbye, World from shelter!");
+    unintercept();
   }
-  return __toCommonJS(hello_world_exports);
+  return __toCommonJS(remixer_exports);
 })();
